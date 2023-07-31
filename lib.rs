@@ -2,7 +2,8 @@
 
 #[ink::contract]
 mod game {
-    use token::{TokenRef, Token};
+
+    use token::TokenRef;
 
     #[ink(event)]
     pub struct Won{
@@ -22,7 +23,7 @@ mod game {
         /// Constructor that initializes the `bool` value to the given `init_value`.
         #[ink(constructor)]
         pub fn new(secret: u32, token_hash: Hash) -> Self {
-            let token = Token::new(true)
+            let token = TokenRef::new(500)
              .code_hash(token_hash)
              .endowment(0)
              .salt_bytes([0xDE, 0xAD, 0xBE, 0xEF])
@@ -33,13 +34,13 @@ mod game {
         }
 
       pub fn mint(&self){
-        self.token.new(500);
+        TokenRef::new(500);
       }
 
         #[ink(message)]
-        pub fn play(&self, number: u32) {
+        pub fn play(&mut self, number: u32) {
             if number == self.secret {   
-                self.token.transfer(&mut self, self.env().caller(), 100);      
+                self.token.transfer(self.env().caller(), 100);      
                 self.env().emit_event(
                 Won{
                     won: true,
